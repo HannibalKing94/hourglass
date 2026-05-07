@@ -1,5 +1,8 @@
 package org.example.hourglass;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.*;
 
 import static org.example.hourglass.HourglassConstants.*;
@@ -7,6 +10,7 @@ import static org.example.hourglass.HourglassConstants.*;
 /**
  * Kalkuliert den optimalen Streak zum lowern, aufgrund der Winrate in Sea of Thieves Hourglass.
  */
+@Component
 public class HourglassCalculator
 {
     private final Random random;

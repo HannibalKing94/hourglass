@@ -14,7 +14,11 @@ import java.util.Map;
 public class HourglassController
 {
 
-    private final HourglassCalculator calculator = new HourglassCalculator();
+    private final HourglassCalculator calculator;
+
+    public HourglassController(HourglassCalculator calculator) {
+        this.calculator = calculator;
+    }
 
     @GetMapping( "/api/analyze" )
     public AnalysisResponse analyze(
