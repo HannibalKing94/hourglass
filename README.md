@@ -1,5 +1,5 @@
 # Hourglass Strategy Analyzer
-![Screenshot](img.png)
+![Screenshot](screenshot_readme.png)
 
 A web application that helps Sea of Thieves players find their optimal lower point in Hourglass PvP, based on their personal winrate. Uses Monte-Carlo simulation across all viable lowering strategies to determine which one yields the most XP per minute.
 

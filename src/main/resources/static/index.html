@@ -18,25 +18,61 @@
 <!-- Content -->
 <div class="max-w-5xl mx-auto p-6 md:p-10 relative z-10">
     <header class="mb-8 flex items-center gap-4">
-        <img src="/sot-logo.png" alt="Sea of Thieves" class="w-20 h-20 object-contain">
+        <img src="/favicon.png" alt="Sea of Thieves" class="w-20 h-20 object-contain">
         <div>
             <h1 class="text-3xl font-bold text-emerald-400">Hourglass Strategy Analyzer</h1>
             <p class="text-gray-400 mt-1">Find your optimal lower point</p>
         </div>
     </header>
 
+    <!-- How to find your stats — Accordion -->
+    <section class="bg-zinc-900 rounded-lg shadow-lg mb-6 overflow-hidden">
+        <button type="button" id="howToToggle"
+                class="w-full flex items-center gap-3 p-4 text-left hover:bg-zinc-800 transition">
+            <img src="/favicon.png" alt="" class="w-8 h-8 object-contain flex-shrink-0">
+            <span class="flex-1 text-emerald-400 font-semibold">How to find your stats</span>
+            <svg id="howToChevron" class="w-5 h-5 text-gray-400 transition-transform"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+
+        <div id="howToContent" class="hidden px-4 pb-4">
+            <div class="pl-11 text-sm">
+                <p class="text-gray-400 mb-2">
+                    Open the <span class="text-gray-200">Ship's Log</span> and follow this path:
+                </p>
+                <p class="text-gray-300 font-mono bg-black rounded px-3 py-2 mb-3 border border-zinc-800 text-xs">
+                    Milestones → Pirate Milestones → <span class="text-gray-500">Scroll and pick</span> The Guardian
+                    <span class="text-gray-500">or</span>
+                    The Servant
+                </p>
+                <div class="space-y-1.5">
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-emerald-400 font-semibold w-32 flex-shrink-0">Games Played:</span>
+                        <span class="text-gray-300">read from <span class="text-gray-200">Battles Completed</span></span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-emerald-400 font-semibold w-32 flex-shrink-0">Games Won:</span>
+                        <span class="text-gray-300">sum of <span class="text-gray-200">Battles Won by Seeking a Foe</span> + <span class="text-gray-200">Battles Won by Repelling a Foe</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Input Card -->
     <section class="bg-zinc-900 rounded-lg p-6 shadow-lg">
         <h2 class="text-xl font-semibold mb-4">Your Stats</h2>
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm text-gray-400 mb-1">Games Played</label>
+                <label class="block text-emerald-400 font-semibold w-32 flex-shrink-0 mb-1">Games Played</label>
                 <input id="gamesPlayed" type="number" min="1"
                        class="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 focus:outline-none focus:border-emerald-400"
                        placeholder="e.g. 100">
             </div>
             <div>
-                <label class="block text-sm text-gray-400 mb-1">Games Won</label>
+                <label class="block text-emerald-400 font-semibold w-32 flex-shrink-0 mb-1">Games Won</label>
                 <input id="gamesWon" type="number" min="0"
                        class="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 focus:outline-none focus:border-emerald-400"
                        placeholder="e.g. 60">
@@ -354,6 +390,13 @@
                 document.getElementById('savedHint').classList.add('hidden');
                 document.getElementById('clearBtn').classList.add('hidden');
             }
+        });
+        document.getElementById('howToToggle').addEventListener('click', () => {
+            const content = document.getElementById('howToContent');
+            const chevron = document.getElementById('howToChevron');
+
+            content.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-180');
         });
     });
 
