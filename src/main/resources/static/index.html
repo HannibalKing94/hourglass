@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Hourglass Strategy Analyzer</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <link rel="icon" type="image/png" href="/favicon.png">
 </head>
 <body class="bg-black text-gray-100 min-h-screen relative">
@@ -15,7 +16,7 @@
 </div>
 
 <!-- Content -->
-<div class="max-w-3xl mx-auto p-6 md:p-10 relative z-10">
+<div class="max-w-5xl mx-auto p-6 md:p-10 relative z-10">
     <header class="mb-8 flex items-center gap-4">
         <img src="/sot-logo.png" alt="Sea of Thieves" class="w-20 h-20 object-contain">
         <div>
@@ -52,11 +53,14 @@
     <section id="results" class="mt-6 hidden">
         <div class="bg-zinc-900 rounded-lg p-6 shadow-lg mb-4">
             <h2 class="text-xl font-semibold mb-2">Recommendation</h2>
-            <p class="text-gray-400 text-sm mb-3">For your winrate of <span id="winrateDisplay" class="text-emerald-400 font-semibold"></span></p>
+            <p class="text-gray-400 text-sm mb-3">For your winrate of <span id="winrateDisplay"
+                                                                            class="text-emerald-400 font-semibold"></span>
+            </p>
             <div class="bg-black rounded p-4 border border-zinc-800">
                 <p class="text-2xl font-bold text-emerald-400" id="bestStrategy"></p>
                 <p class="text-gray-300 mt-1"><span id="bestXp"></span> XP/min</p>
-                <p class="text-gray-400 text-sm mt-2">Estimated time per level: <span id="timePerLevel" class="text-gray-200"></span></p>
+                <p class="text-gray-400 text-sm mt-2">Estimated time per level: <span id="timePerLevel"
+                                                                                      class="text-gray-200"></span></p>
             </div>
         </div>
 
@@ -72,6 +76,12 @@
                 <tbody id="strategiesTable"></tbody>
             </table>
         </div>
+        <div class="bg-zinc-900 rounded-lg p-6 shadow-lg mt-4">
+            <h2 class="text-xl font-semibold mb-4">XP per Minute Comparison</h2>
+            <div class="relative" style="height: 350px;">
+                <canvas id="strategyChart"></canvas>
+            </div>
+        </div>
     </section>
 
     <!-- Loading -->
@@ -82,6 +92,7 @@
 
 <script>
     const XP_PER_LEVEL = 12600;
+    let chartInstance = null;
 
     const analyzeBtn = document.getElementById('analyzeBtn');
     const errorMsg = document.getElementById('errorMsg');
@@ -89,15 +100,15 @@
     const loading = document.getElementById('loading');
 
     analyzeBtn.addEventListener('click', async () => {
-        const gamesPlayed = parseInt(document.getElementById('gamesPlayed').value);
-        const gamesWon = parseInt(document.getElementById('gamesWon').value);
+        const gamesPlayed = Number.parseInt(document.getElementById('gamesPlayed').value);
+        const gamesWon = Number.parseInt(document.getElementById('gamesWon').value);
 
         errorMsg.classList.add('hidden');
         if (!gamesPlayed || gamesPlayed <= 0) {
             showError("Please enter a valid number of games played.");
             return;
         }
-        if (isNaN(gamesWon) || gamesWon < 0 || gamesWon > gamesPlayed) {
+        if (Number.isNaN(gamesWon) || gamesWon < 0 || gamesWon > gamesPlayed) {
             showError("Games won must be between 0 and games played.");
             return;
         }
@@ -147,8 +158,71 @@
                 `;
             tbody.appendChild(row);
         });
-
+        renderChart(data.allStrategies);
         results.classList.remove('hidden');
+    }
+
+    function renderChart(strategies) {
+        const ctx = document.getElementById('strategyChart').getContext('2d');
+
+        // Bestehenden Chart zerstören (falls vorhanden)
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        // Daten vorbereiten — die Liste kommt sortiert (beste zuerst),
+        // aber im Chart wollen wir sie nach Streak-Wert sortiert (1, 2, 3, ..., never)
+        const sortedForChart = [...strategies].sort((a, b) => a.lowerAtStreak - b.lowerAtStreak);
+
+        const labels = sortedForChart.map(s => describeStrategy(s.lowerAtStreak));
+        const values = sortedForChart.map(s => s.xpPerMinute);
+
+        // Beste Strategie finden, um sie farblich hervorzuheben
+        const maxValue = Math.max(...values);
+        const colors = values.map(v =>
+            v === maxValue ? '#34d399' : '#34d39955'  // emerald-400, gedämpft = mit Alpha
+        );
+
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'XP per Minute',
+                    data: values,
+                    backgroundColor: colors,
+                    borderColor: '#34d399',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {display: false},
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `${ctx.parsed.y.toFixed(2)} XP/min`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {color: '#9ca3af'},  // gray-400
+                        grid: {color: '#27272a'}    // zinc-800
+                    },
+                    x: {
+                        ticks: {
+                            color: '#9ca3af',
+                            maxRotation: 45,
+                            minRotation: 45
+                        },
+                        grid: {display: false}
+                    }
+                }
+            }
+        });
     }
 
     function describeStrategy(lowerAtStreak) {

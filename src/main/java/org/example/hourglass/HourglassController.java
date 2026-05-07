@@ -27,8 +27,8 @@ public class HourglassController {
         }
 
         double winrate = (double) gamesWon / gamesPlayed;
-        List<StrategyResult> results = calculator.compareAllStrategies(winrate, 50_000, 5);
-        StrategyResult best = results.get(0);
+        List<StrategyResult> results = calculator.compareAllStrategies(winrate, 100000, 10);
+        StrategyResult best = results.getFirst();
 
         return new AnalysisResponse(winrate, results, best);
     }

@@ -16,6 +16,11 @@ public class HourglassCalculator
         this.random = new Random();
     }
 
+    // Konstruktor für Tests — hier kann ein Random mit fixem Seed reingegeben werden
+    public HourglassCalculator(Random random) {
+        this.random = random;
+    }
+
     /**
      * Gibt die XP zurück, die man für einen Win bei dem aktuellen Streak bekommt.
      * @param streak der aktuelle Streak VOR dem Win (0, 1, 2, 3, 4+)
@@ -103,7 +108,7 @@ public class HourglassCalculator
             }
         }
 
-        return (double) totalXp / totalMinutes;
+        return (double) totalXp / totalMinutes;//NOSONAR
     }
 
     /**
