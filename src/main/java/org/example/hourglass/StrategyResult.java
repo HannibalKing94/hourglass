@@ -8,12 +8,4 @@ package org.example.hourglass;
  */
 public record StrategyResult( int lowerAtStreak, double xpPerMinute )
 {
-    public String describe()
-    {
-        if ( lowerAtStreak == Integer.MAX_VALUE )
-        {
-            return "Never lower";
-        }
-        return "Lower at streak " + lowerAtStreak;
-    }
 }

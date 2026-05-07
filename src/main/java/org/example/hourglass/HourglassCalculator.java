@@ -1,9 +1,10 @@
 package org.example.hourglass;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import static org.example.hourglass.HourglassConstants.*;
 
@@ -20,7 +21,7 @@ public class HourglassCalculator
         this.random = new Random();
     }
 
-    // Konstruktor für Tests — hier kann ein Random mit fixem Seed reingegeben werden
+    // Konstruktor für Tests, hier kann ein Random mit fixem Seed reingegeben werden
     public HourglassCalculator( Random random )
     {
         this.random = random;
@@ -173,67 +174,5 @@ public class HourglassCalculator
         results.sort( ( a, b ) -> Double.compare( b.xpPerMinute(), a.xpPerMinute() ) );
 
         return results;
-    }
-
-    public void runHourglassAnalysis( Scanner sc )
-    {
-        try
-        {
-            System.out.println( "=== Sea of Thieves Hourglass Strategy Analyzer ===" );
-            System.out.println( "Please enter played games:" );
-            int gamesPlayed = sc.nextInt();
-            System.out.println( "Please enter won games:" );
-            int gamesWon = sc.nextInt();
-
-            // Winrate berechnen
-            if ( gamesPlayed <= 0 )
-            {
-                throw new IllegalArgumentException( "Games played must be greater than 0" );
-            }
-            if ( gamesWon < 0 || gamesWon > gamesPlayed )
-            {
-                throw new IllegalArgumentException( "Games won must be between 0 and games played" );
-            }
-            double winrate = ( double ) gamesWon / gamesPlayed;
-
-            System.out.printf( "%nYour winrate: %.2f%% (%d/%d)%n%n",
-                    winrate * 100, gamesWon, gamesPlayed );
-            System.out.println( "Running simulation (1 million games per strategy)..." );
-            System.out.println();
-
-            // Strategien vergleichen
-            int numIterations = 100000;
-            int numRuns = 10;
-            List<StrategyResult> results = compareAllStrategies( winrate, numIterations, numRuns );
-
-            // Tabelle ausgeben
-            System.out.println( "=== Strategy Comparison ===" );
-            System.out.printf( "%-25s %12s%n", "Strategy", "XP/min" );
-            System.out.println( "-".repeat( 40 ) );
-            for ( StrategyResult r : results )
-            {
-                System.out.printf( "%-25s %12.2f%n", r.describe(), r.xpPerMinute() );
-            }
-
-            // Empfehlung
-            StrategyResult best = results.get( 0 );
-            System.out.println();
-            System.out.println( "=== Recommendation ===" );
-            System.out.printf( "Best strategy: %s (%.2f XP/min)%n",
-                    best.describe(), best.xpPerMinute() );
-
-            // Bonus-Info: wie lange für 1 Level?
-            double minutesPerLevel = XP_PER_LEVEL / best.xpPerMinute();
-            System.out.printf( "Estimated time per level: %.1f minutes (%.1f hours)%n",
-                    minutesPerLevel, minutesPerLevel / 60 );
-
-        } catch ( InputMismatchException e )
-        {
-            System.out.println( "Please enter a number." );
-            sc.nextLine();
-        } catch ( IllegalArgumentException e )
-        {
-            System.out.println( "Error: " + e.getMessage() );
-        }
     }
 }

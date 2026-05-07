@@ -3,20 +3,23 @@ package org.example.hourglass;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@CrossOrigin( origins = "*" )  // erlaubt Anfragen von jeder Quelle (für Entwicklung okay)
 public class HourglassController
 {
 
     private final HourglassCalculator calculator;
 
-    public HourglassController(HourglassCalculator calculator) {
+    public HourglassController( HourglassCalculator calculator )
+    {
         this.calculator = calculator;
     }
 
@@ -43,7 +46,7 @@ public class HourglassController
         return new AnalysisResponse( winrate, results, best );
     }
 
-    // Fall 1: Pflicht-Parameter fehlt — sauberere Meldung
+    // Fall 1: Pflicht-Parameter fehlt
     @ExceptionHandler( MissingServletRequestParameterException.class )
     public ResponseEntity<Map<String, String>> handleMissingParam( MissingServletRequestParameterException e )
     {
@@ -52,7 +55,7 @@ public class HourglassController
                 .body( Map.of( "message", "Missing parameter: " + e.getParameterName() ) );
     }
 
-    // Fall 2: Falscher Datentyp — sauberere Meldung
+    // Fall 2: falscher Datentyp
     @ExceptionHandler( MethodArgumentTypeMismatchException.class )
     public ResponseEntity<Map<String, String>> handleTypeMismatch( MethodArgumentTypeMismatchException e )
     {
@@ -61,7 +64,7 @@ public class HourglassController
                 .body( Map.of( "message", "Invalid value for parameter: " + e.getName() ) );
     }
 
-    // Fall 3: Unsere eigene Validierung
+    // Fall 3: eigene Validierung
     @ExceptionHandler( IllegalArgumentException.class )
     public ResponseEntity<Map<String, String>> handleBadInput( IllegalArgumentException e )
     {
@@ -69,5 +72,4 @@ public class HourglassController
                 .status( HttpStatus.BAD_REQUEST )
                 .body( Map.of( "message", e.getMessage() ) );
     }
-
 }
