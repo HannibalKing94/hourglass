@@ -160,7 +160,7 @@ public class HourglassCalculator
     {
         List<StrategyResult> results = new ArrayList<>();
 
-        for ( int lowerAt = 1; lowerAt <= 10; lowerAt++ )
+        for ( int lowerAt = 1; lowerAt <= MAX_LOWER_STRATEGY_STREAK; lowerAt++ )
         {
             double xpPerMinute = simulateAveraged( winrate, lowerAt, numIterations, numRuns );
             results.add( new StrategyResult( lowerAt, xpPerMinute ) );

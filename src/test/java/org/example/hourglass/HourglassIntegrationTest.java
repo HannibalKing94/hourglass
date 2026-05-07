@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.example.hourglass.HourglassConstants.MAX_LOWER_STRATEGY_STREAK;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -27,7 +28,7 @@ class HourglassIntegrationTest
                 .andExpect( status().isOk() )
                 .andExpect( jsonPath( "$.winrate" ).value( 0.6 ) )
                 .andExpect( jsonPath( "$.bestStrategy.xpPerMinute" ).value( org.hamcrest.Matchers.greaterThan( 0.0 ) ) )
-                .andExpect( jsonPath( "$.allStrategies.length()" ).value( 11 ) )  // 10 + "never"
+                .andExpect( jsonPath( "$.allStrategies.length()" ).value( MAX_LOWER_STRATEGY_STREAK + 1 ) )  // 15 + "never"
                 .andExpect( jsonPath( "$.bestStrategy.lowerAtStreak" ).exists() );
     }
 

@@ -18,6 +18,9 @@ public class HourglassConstants
     public static final int LOWER_XP_STREAK_4_BASE = 7800;
     public static final int LOWER_XP_STREAK_4_PLUS_INCREMENT = 3000;
 
+    //Increase this to e.g. 15 if you have a very high winrate (90% or above)
+    public static final int MAX_LOWER_STRATEGY_STREAK = 10;
+
     // Zeit (in Minuten)
     public static final int MINUTES_PER_GAME = 10;
     public static final int MINUTES_PER_LOWER = 10;
