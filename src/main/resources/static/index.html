@@ -268,16 +268,24 @@
         try {
             const response = await fetch(`/api/analyze?gamesWon=${gamesWon}&gamesPlayed=${gamesPlayed}`);
             if (!response.ok) {
-                throw new Error(`Server returned ${response.status}`);
+                // Versuche, die Backend-Meldung zu lesen
+                let errorDetail = `Server returned ${response.status}`;
+                try {
+                    const errorBody = await response.json();
+                    if (errorBody.message) {
+                        errorDetail = errorBody.message;
+                    }
+                } catch {
+                    // Backend hat kein JSON gesendet, Default-Meldung behalten
+                }
+                throw new Error(errorDetail);
             }
             const data = await response.json();
             renderResults(data);
-
-            // Speichern hier, mit den korrekten lokalen Variablen
             saveToStorage(gamesPlayed, gamesWon, data);
             showLastSavedHint(new Date().toISOString());
         } catch (err) {
-            showError("Something went wrong: " + err.message);
+            showError(err.message);
         } finally {
             loading.classList.add('hidden');
         }
