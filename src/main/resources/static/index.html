@@ -25,7 +25,7 @@
         </div>
     </header>
 
-    <!-- How to find your stats — Accordion -->
+    <!-- How to find your stats - Accordion -->
     <section class="bg-zinc-900 rounded-lg shadow-lg mb-6 overflow-hidden">
         <button type="button" id="howToToggle"
                 class="w-full flex items-center gap-3 p-4 text-left hover:bg-zinc-800 transition">
@@ -40,7 +40,19 @@
         <div id="howToContent" class="hidden px-4 pb-4">
             <div class="pl-11 text-sm">
                 <p class="text-gray-400 mb-2">
-                    Open the <span class="text-gray-200">Ship's Log</span> and follow this path:
+                    Open the
+                    <span class="relative inline-block group cursor-help">
+        <span class="text-gray-200 underline decoration-dotted decoration-gray-500 underline-offset-2">Ship's Log</span>
+        <span class="invisible group-hover:visible group-focus:visible opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-200 absolute left-0 top-full mt-2 z-20 pointer-events-none">
+            <span class="block bg-black border border-zinc-700 rounded-lg p-2 shadow-2xl">
+                <img src="/shipsLog.png"
+                     alt="Where to find Ship's Log in-game"
+                     class="block max-w-xl rounded">
+                <span class="block text-xs text-gray-400 mt-2 px-1">Where to find Ship's Log in-game</span>
+            </span>
+        </span>
+    </span>
+                    and follow this path:
                 </p>
                 <p class="text-gray-300 font-mono bg-black rounded px-3 py-2 mb-3 border border-zinc-800 text-xs">
                     Milestones → Pirate Milestones → <span class="text-gray-500">Scroll and pick</span> The Guardian
