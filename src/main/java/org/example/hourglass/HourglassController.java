@@ -52,7 +52,7 @@ public class HourglassController
     {
         return ResponseEntity
                 .status( HttpStatus.BAD_REQUEST )
-                .body( Map.of( "message", "Missing parameter: " + e.getParameterName() ) );
+                .body( Map.of( "message", "Missing parameter: " + e.getParameterName() ) );//NOSONAR
     }
 
     // Fall 2: falscher Datentyp
