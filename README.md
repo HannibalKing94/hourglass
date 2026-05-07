@@ -140,7 +140,7 @@ A `lowerAtStreak` value of `2147483647` (Integer.MAX_VALUE) represents the "neve
 
 This project was inspired by [Sponge's video on Hourglass strategy](https://www.youtube.com/watch?v=mejmQYP-bvU).
 
-The XP values used in the simulation are based on data documented by [DavidSOT](https://www.youtube.com/@DavidSOT).
+The XP values used in the simulation are based on data documented by [DavidSOT](https://www.youtube.com/@DavidSOT), [u/b_ootay_ful](https://www.reddit.com/user/b_ootay_ful/), [ u/OndrejBakan ](https://www.reddit.com/user/OndrejBakan/) and [u/SansSariph](https://www.reddit.com/user/SansSariph/).
 
 ## Disclaimer
 
