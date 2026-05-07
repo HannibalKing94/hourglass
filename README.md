@@ -105,4 +105,47 @@ Then open http://localhost:8080 in your browser.
 
 The test suite covers the calculator logic (deterministic and statistical tests), the HTTP controller layer (with mocked dependencies), and an end-to-end integration test that boots the full Spring context.
 
-## Project Structure
+## API
+
+The app exposes a single REST endpoint:
+
+### GET /api/analyze
+
+**Query Parameters:**
+- `gamesWon` (integer, required): number of games won
+- `gamesPlayed` (integer, required): number of games played
+
+**Success Response (200):**
+```json
+{
+  "winrate": 0.6,
+  "allStrategies": [
+    { "lowerAtStreak": 5, "xpPerMinute": 337.82 },
+    { "lowerAtStreak": 6, "xpPerMinute": 336.88 }
+  ],
+  "bestStrategy": { "lowerAtStreak": 5, "xpPerMinute": 337.82 }
+}
+```
+
+A `lowerAtStreak` value of `2147483647` (Integer.MAX_VALUE) represents the "never lower" strategy.
+
+**Error Response (400):**
+```json
+{
+  "message": "Games played must be greater than 0"
+}
+```
+
+## Credits
+
+This project was inspired by [Sponge's video on Hourglass strategy](https://www.youtube.com/watch?v=mejmQYP-bvU). Check out his [YouTube channel](https://www.youtube.com/@massivesponge).
+
+The XP values used in the simulation are based on data documented by [DavidSOT](https://www.youtube.com/@DavidSOT).
+
+## Disclaimer
+
+This tool is fan-made and not affiliated with Rare or Microsoft. Sea of Thieves is a trademark of Rare Limited. The XP values used in the simulation are based on community-documented mechanics and may change with future game updates. If you notice that the values are out of date, please open an issue.
+
+## License
+
+MIT
