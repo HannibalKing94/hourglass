@@ -167,8 +167,6 @@
     });
 
     function renderResults(data) {
-        saveToStorage(gamesPlayed, gamesWon, data);
-        showLastSavedHint(new Date().toISOString());
         document.getElementById('winrateDisplay').textContent =
             `${(data.winrate * 100).toFixed(2)}%`;
 
@@ -262,6 +260,28 @@
             }
         });
     }
+
+    analyzeBtn.addEventListener('click', async () => {
+        const gamesPlayed = Number.parseInt(document.getElementById('gamesPlayed').value);
+        const gamesWon = Number.parseInt(document.getElementById('gamesWon').value);
+
+        try {
+            const response = await fetch(`/api/analyze?gamesWon=${gamesWon}&gamesPlayed=${gamesPlayed}`);
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}`);
+            }
+            const data = await response.json();
+            renderResults(data);
+
+            // Speichern hier, mit den korrekten lokalen Variablen
+            saveToStorage(gamesPlayed, gamesWon, data);
+            showLastSavedHint(new Date().toISOString());
+        } catch (err) {
+            showError("Something went wrong: " + err.message);
+        } finally {
+            loading.classList.add('hidden');
+        }
+    });
 
     function describeStrategy(lowerAtStreak) {
         if (lowerAtStreak === 2147483647) return 'Never lower';
