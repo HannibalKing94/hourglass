@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hourglass Strategy Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="/favicon.png">
+</head>
+<body class="bg-black text-gray-100 min-h-screen relative">
+
+<!-- Background Watermark -->
+<div class="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
+    <img src="/sot-logo.png" alt=""
+         class="w-[1000px] max-w-[80vw] opacity-5">
+</div>
+
+<!-- Content -->
+<div class="max-w-3xl mx-auto p-6 md:p-10 relative z-10">
+    <header class="mb-8 flex items-center gap-4">
+        <img src="/sot-logo.png" alt="Sea of Thieves" class="w-20 h-20 object-contain">
+        <div>
+            <h1 class="text-3xl font-bold text-emerald-400">Hourglass Strategy Analyzer</h1>
+            <p class="text-gray-400 mt-1">Find your optimal lower point</p>
+        </div>
+    </header>
+
+    <!-- Input Card -->
+    <section class="bg-zinc-900 rounded-lg p-6 shadow-lg">
+        <h2 class="text-xl font-semibold mb-4">Your Stats</h2>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm text-gray-400 mb-1">Games Played</label>
+                <input id="gamesPlayed" type="number" min="1"
+                       class="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 focus:outline-none focus:border-emerald-400"
+                       placeholder="e.g. 100">
+            </div>
+            <div>
+                <label class="block text-sm text-gray-400 mb-1">Games Won</label>
+                <input id="gamesWon" type="number" min="0"
+                       class="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 focus:outline-none focus:border-emerald-400"
+                       placeholder="e.g. 60">
+            </div>
+        </div>
+        <button id="analyzeBtn"
+                class="mt-4 w-full bg-emerald-400 hover:bg-emerald-300 text-black font-semibold py-2 rounded transition">
+            Analyze
+        </button>
+        <p id="errorMsg" class="text-red-400 text-sm mt-2 hidden"></p>
+    </section>
+
+    <!-- Results -->
+    <section id="results" class="mt-6 hidden">
+        <div class="bg-zinc-900 rounded-lg p-6 shadow-lg mb-4">
+            <h2 class="text-xl font-semibold mb-2">Recommendation</h2>
+            <p class="text-gray-400 text-sm mb-3">For your winrate of <span id="winrateDisplay" class="text-emerald-400 font-semibold"></span></p>
+            <div class="bg-black rounded p-4 border border-zinc-800">
+                <p class="text-2xl font-bold text-emerald-400" id="bestStrategy"></p>
+                <p class="text-gray-300 mt-1"><span id="bestXp"></span> XP/min</p>
+                <p class="text-gray-400 text-sm mt-2">Estimated time per level: <span id="timePerLevel" class="text-gray-200"></span></p>
+            </div>
+        </div>
+
+        <div class="bg-zinc-900 rounded-lg p-6 shadow-lg">
+            <h2 class="text-xl font-semibold mb-4">All Strategies</h2>
+            <table class="w-full text-left">
+                <thead>
+                <tr class="text-gray-400 text-sm border-b border-zinc-800">
+                    <th class="py-2">Strategy</th>
+                    <th class="py-2 text-right">XP/min</th>
+                </tr>
+                </thead>
+                <tbody id="strategiesTable"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Loading -->
+    <div id="loading" class="hidden text-center mt-6 text-gray-400">
+        <p>Running 250,000 simulations… ⚙️</p>
+    </div>
+</div>
+
+<script>
+    const XP_PER_LEVEL = 12600;
+
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const errorMsg = document.getElementById('errorMsg');
+    const results = document.getElementById('results');
+    const loading = document.getElementById('loading');
+
+    analyzeBtn.addEventListener('click', async () => {
+        const gamesPlayed = parseInt(document.getElementById('gamesPlayed').value);
+        const gamesWon = parseInt(document.getElementById('gamesWon').value);
+
+        errorMsg.classList.add('hidden');
+        if (!gamesPlayed || gamesPlayed <= 0) {
+            showError("Please enter a valid number of games played.");
+            return;
+        }
+        if (isNaN(gamesWon) || gamesWon < 0 || gamesWon > gamesPlayed) {
+            showError("Games won must be between 0 and games played.");
+            return;
+        }
+
+        results.classList.add('hidden');
+        loading.classList.remove('hidden');
+
+        try {
+            const response = await fetch(`/api/analyze?gamesWon=${gamesWon}&gamesPlayed=${gamesPlayed}`);
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}`);
+            }
+            const data = await response.json();
+            renderResults(data);
+        } catch (err) {
+            showError("Something went wrong: " + err.message);
+        } finally {
+            loading.classList.add('hidden');
+        }
+    });
+
+    function renderResults(data) {
+        document.getElementById('winrateDisplay').textContent =
+            `${(data.winrate * 100).toFixed(2)}%`;
+
+        document.getElementById('bestStrategy').textContent =
+            describeStrategy(data.bestStrategy.lowerAtStreak);
+        document.getElementById('bestXp').textContent =
+            data.bestStrategy.xpPerMinute.toFixed(2);
+
+        const minutesPerLevel = XP_PER_LEVEL / data.bestStrategy.xpPerMinute;
+        const hours = Math.floor(minutesPerLevel / 60);
+        const minutes = Math.round(minutesPerLevel % 60);
+        document.getElementById('timePerLevel').textContent =
+            hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+
+        const tbody = document.getElementById('strategiesTable');
+        tbody.innerHTML = '';
+        data.allStrategies.forEach((s, i) => {
+            const row = document.createElement('tr');
+            row.className = i === 0
+                ? 'border-b border-zinc-800 text-emerald-400'
+                : 'border-b border-zinc-800';
+            row.innerHTML = `
+                    <td class="py-2">${describeStrategy(s.lowerAtStreak)}</td>
+                    <td class="py-2 text-right font-mono">${s.xpPerMinute.toFixed(2)}</td>
+                `;
+            tbody.appendChild(row);
+        });
+
+        results.classList.remove('hidden');
+    }
+
+    function describeStrategy(lowerAtStreak) {
+        if (lowerAtStreak === 2147483647) return 'Never lower';
+        return `Lower at streak ${lowerAtStreak}`;
+    }
+
+    function showError(message) {
+        errorMsg.textContent = message;
+        errorMsg.classList.remove('hidden');
+    }
+</script>
+</body>
+</html>
