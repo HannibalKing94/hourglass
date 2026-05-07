@@ -47,6 +47,13 @@
             Analyze
         </button>
         <p id="errorMsg" class="text-red-400 text-sm mt-2 hidden"></p>
+        <div class="flex items-center justify-between mt-2">
+            <p id="savedHint" class="text-gray-500 text-xs hidden"></p>
+            <button id="clearBtn"
+                    class="text-gray-500 hover:text-red-400 text-xs underline transition hidden">
+                Clear saved data
+            </button>
+        </div>
     </section>
 
     <!-- Results -->
@@ -94,6 +101,35 @@
     const XP_PER_LEVEL = 12600;
     let chartInstance = null;
 
+    const STORAGE_KEY = 'hourglass_data';
+
+    function saveToStorage(gamesPlayed, gamesWon, analysisData) {
+        const data = {
+            gamesPlayed: gamesPlayed,
+            gamesWon: gamesWon,
+            analysisData: analysisData,
+            savedAt: new Date().toISOString()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function loadFromStorage() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        try {
+            return JSON.parse(raw);
+        } catch (e) {
+            // Korruptes JSON — entfernen und null zurückgeben
+            console.log(`catch blablalba: ${e}`)
+            localStorage.removeItem(STORAGE_KEY);
+            return null;
+        }
+    }
+
+    function clearStorage() {
+        localStorage.removeItem(STORAGE_KEY);
+    }
+
     const analyzeBtn = document.getElementById('analyzeBtn');
     const errorMsg = document.getElementById('errorMsg');
     const results = document.getElementById('results');
@@ -131,6 +167,8 @@
     });
 
     function renderResults(data) {
+        saveToStorage(gamesPlayed, gamesWon, data);
+        showLastSavedHint(new Date().toISOString());
         document.getElementById('winrateDisplay').textContent =
             `${(data.winrate * 100).toFixed(2)}%`;
 
@@ -233,6 +271,43 @@
     function showError(message) {
         errorMsg.textContent = message;
         errorMsg.classList.remove('hidden');
+    }
+
+    // Beim Seitenstart: gespeicherte Daten laden, falls vorhanden
+    globalThis.addEventListener('DOMContentLoaded', () => {
+        const saved = loadFromStorage();
+        if (saved) {
+            // Eingabefelder vorausfüllen
+            document.getElementById('gamesPlayed').value = saved.gamesPlayed;
+            document.getElementById('gamesWon').value = saved.gamesWon;
+
+            // Falls gespeicherte Analyse-Daten existieren, direkt anzeigen
+            if (saved.analysisData) {
+                renderResults(saved.analysisData);
+                showLastSavedHint(saved.savedAt);
+            }
+        }
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            if (confirm('Clear all saved data?')) {
+                clearStorage();
+                document.getElementById('gamesPlayed').value = '';
+                document.getElementById('gamesWon').value = '';
+                document.getElementById('results').classList.add('hidden');
+                document.getElementById('savedHint').classList.add('hidden');
+                document.getElementById('clearBtn').classList.add('hidden');
+            }
+        });
+    });
+
+    function showLastSavedHint(isoTimestamp) {
+        const date = new Date(isoTimestamp);
+        const formatted = date.toLocaleString();
+
+        const hint = document.getElementById('savedHint');
+        hint.textContent = `Last analyzed: ${formatted}`;
+        hint.classList.remove('hidden');
+
+        document.getElementById('clearBtn').classList.remove('hidden');
     }
 </script>
 </body>
